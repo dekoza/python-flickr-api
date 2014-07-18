@@ -9,13 +9,13 @@ except:
     raise RuntimeError("Could not read version file.")
 
 setup(
-    name="flickr_api",
+    name="tornado_flickr_api",
     version=version_str,
-    description="Python wrapper for the Flickr API",
-    author="Alexis Mignon",
-    author_email="alexis.mignon@gmail.com",
-    url="http://code.google.com/p/python-flickr-api/",
-    packages=["flickr_api"],
+    description="Async Python wrapper for the Flickr API based on Tornado framework",
+    author="Dmitriy Bryndin",
+    author_email="bryndin@gmail.com",
+    url="https://github.com/bryndin/tornado-flickr-api",
+    packages=["tornado_flickr_api"],
     install_requires=[
         "oauth",
         "tornado",

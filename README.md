@@ -1,6 +1,8 @@
 Python Async Flickr API
 -----------------------
 
+This is a fork of Alexis Mignon's python-flickr-api adapted to work asynchronously under Tornado framework.
+
 As complete as possible implementation of Flickr API.
 
 The project provides an almost exhaustive access to the Flickr API, through an *object oriented* Python interface.
@@ -19,11 +21,9 @@ Main features
 
 Requires
 --------
-	* python >= 2.6.5 
-	* python-oauth (or the python module from http://code.google.com/p/oauth/)
-	* Tornado
-
-[![githalytics.com alpha](https://cruel-carlota.pagodabox.com/950bd311453e675e4a06ec3a5e99e420 "githalytics.com")](http://githalytics.com/alexis-mignon/python-flickr-api)
+  * python >= 2.6.5 
+  * python-oauth (or the python module from http://code.google.com/p/oauth/)
+  * tornado
 
 Installation
 ------------
@@ -31,13 +31,12 @@ Installation
 ### From source
 
 ```bash
-$ git clone https://github.com/alexis-mignon/python-flickr-api.git
-$ cd python-flickr-api
+$ git clone https://github.com/bryndin/tornado-flickr-api.git
+$ cd tornado-flickr-api
 $ python setup.py install --user  # to install in the user directory (~/.local)
 $ sudo python setup.py install    # to install globally
 ```
 
 Tutorial
 --------
-A short tutorial is available in the [Wiki section](https://github.com/alexis-mignon/python-flickr-api/wiki/Tutorial).
-
+A short tutorial is available in the [Wiki section](https://github.com/alexis-mignon/tornado-flickr-api/wiki/Tutorial).
