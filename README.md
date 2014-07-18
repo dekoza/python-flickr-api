@@ -21,6 +21,7 @@ Requires
 --------
 	* python >= 2.6.5 
 	* python-oauth (or the python module from http://code.google.com/p/oauth/)
+	* Tornado
 
 [![githalytics.com alpha](https://cruel-carlota.pagodabox.com/950bd311453e675e4a06ec3a5e99e420 "githalytics.com")](http://githalytics.com/alexis-mignon/python-flickr-api)
 
@@ -35,15 +36,6 @@ $ cd python-flickr-api
 $ python setup.py install --user  # to install in the user directory (~/.local)
 $ sudo python setup.py install    # to install globally
 ```
-
-### From Pypi
-
-You can also install the last stable release using the `pip` progam:
-```bash
-$ pip install flickr_api --user  # to install in the user directory (~/.local)
-$ sudo pip install flickr_api    # to install globally
-```
-See its [Pypi page](https://pypi.python.org/pypi/flickr_api/0.4).
 
 Tutorial
 --------
