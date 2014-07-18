@@ -1,23 +1,36 @@
-from method_call import call_api
 import sys
 import os
 
+from tornado.gen import coroutine, Return
 
+from method_call import call_api
+
+#TODO(DB): update collers to expect future
+@coroutine
 def load_methods():
     """
         Loads the list of all methods
     """
-    r = call_api(method="flickr.reflection.getMethods")
-    return r["methods"]["method"]
+    try:
+        r = yield call_api(method="flickr.reflection.getMethods")
+    except Exception as e:
+        raise e
+
+    raise Return(r["methods"]["method"])
 
 __perms__ = {0: 'none', '1': 'read', '2': 'write', '3': 'delete'}
 
 
+#TODO(DB): update collers to expect future
+@coroutine
 def methods_info():
     methods = {}
     for m in load_methods():
-        info = call_api(method="flickr.reflection.getMethodInfo",
-                        method_name=m)
+        try:
+            info = yield call_api(method="flickr.reflection.getMethodInfo", method_name=m)
+        except Exception as e:
+            raise e
+
         info.pop("stat")
         method = info.pop("method")
         method["requiredperms"] = __perms__[method["requiredperms"]]
@@ -27,7 +40,7 @@ def methods_info():
         info["arguments"] = info["arguments"]["argument"]
         info["errors"] = info["errors"]["error"]
         methods[m] = info
-    return methods
+    raise Return(methods)
 
 
 def write_reflection(path, template, methods=None):

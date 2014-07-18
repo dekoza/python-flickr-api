@@ -13,6 +13,9 @@ import urllib
 import hashlib
 import json
 
+from tornado.httpclient import AsyncHTTPClient, HTTPRequest, HTTPError
+from tornado.gen import coroutine, Return
+
 from . import keys
 from .flickrerrors import FlickrError, FlickrAPIError
 from .cache import SimpleCache
@@ -41,16 +44,20 @@ def disable_cache():
     CACHE = None
 
 
-def send_request(url, data):
-    """send a http request.
+@coroutine
+def send_request(url, data=None):
+    """Send an async http request.
     """
-    req = urllib2.Request(url, data)
+    http_client = AsyncHTTPClient()
+    request = HTTPRequest(url, method="POST", body=data) if data else HTTPRequest(url)
     try:
-        return urllib2.urlopen(req).read()
-    except urllib2.HTTPError, e:
-        raise FlickrError(e.read().split('&')[0])
+        response = yield http_client.fetch(request)
+    except HTTPError as e:
+        raise FlickrError(e.response)
+    raise Return(response)
 
 
+@coroutine
 def call_api(api_key=None, api_secret=None, auth_handler=None,
              needssigning=False, request_url=REST_URL, raw=False, **args):
     """
@@ -102,30 +109,35 @@ def call_api(api_key=None, api_secret=None, auth_handler=None,
         if needssigning:
             query_elements = args.items()
             query_elements.sort()
-            sig = keys.API_SECRET + \
-                  ["".join(["".join(e) for e in query_elements])]
+            sig = keys.API_SECRET + ["".join(["".join(e) for e in query_elements])]
             m = hashlib.md5()
             m.update(sig)
             api_sig = m.digest()
             args["api_sig"] = api_sig
         data = urllib.urlencode(args)
     else:
-        data = auth_handler.complete_parameters(
-             url=request_url, params=args
-        ).to_postdata()
+        data = auth_handler.complete_parameters(url=request_url, params=args).to_postdata()
 
     if CACHE is None:
-        resp = send_request(request_url, data)
+        try:
+            resp = yield send_request(request_url, data)
+        except Exception as e:
+            raise e
     else:
-        resp = CACHE.get(data) or send_request(request_url, data)
+        resp = CACHE.get(data)
+        if resp is None:
+            try:
+                resp = yield send_request(request_url, data)
+            except Exception as e:
+                raise e
         if data not in CACHE:
             CACHE.set(data, resp)
 
     if raw:
-        return resp
+        raise Return(resp)
 
     try:
-        resp = json.loads(resp)
+        resp = json.loads(resp.body)
     except ValueError, e:
         print resp
         raise e
@@ -135,7 +147,7 @@ def call_api(api_key=None, api_secret=None, auth_handler=None,
 
     resp = clean_content(resp)
 
-    return resp
+    raise Return(resp)
 
 
 def clean_content(d):

@@ -18,6 +18,7 @@ setup(
     packages=["flickr_api"],
     install_requires=[
         "oauth",
+        "tornado",
     ],
     license="BSD License",
 )

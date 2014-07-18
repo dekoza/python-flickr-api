@@ -1,4 +1,5 @@
 /build
 /flickr_api.egg-info
+.idea/
 *.pyc
 *.egg

@@ -11,6 +11,9 @@
 
 import re
 from functools import wraps
+
+from tornado.gen import coroutine, Return
+
 from . import method_call
 from . import auth
 from .flickrerrors import FlickrError
@@ -241,6 +244,7 @@ def caller(flickr_method, static=False):
         token.
     """
     def decorator(method):
+        @coroutine
         @wraps(method)
         def call(self, *args, **kwargs):
             token, kwargs = _get_token(self, **kwargs)
@@ -248,11 +252,14 @@ def caller(flickr_method, static=False):
             method_args[call.__self_name__] = self.id
             if token:
                 method_args["auth_handler"] = token
-            r = method_call.call_api(method=flickr_method, **method_args)
             try:
-                return format_result(r, token)
+                r = yield method_call.call_api(method=flickr_method, **method_args)
+            except Exception as e:
+                raise e
+            try:
+                raise Return(format_result(r, token))
             except TypeError:
-                return format_result(r)
+                raise Return(format_result(r))
         call.flickr_method = flickr_method
         call.isstatic = False
         return call
@@ -280,16 +287,20 @@ def static_caller(flickr_method, static=False):
         token.
     """
     def decorator(method):
+        @coroutine
         @wraps(method)
         def static_call(*args, **kwargs):
             token, kwargs = _get_token(None, **kwargs)
             method_args, format_result = method(*args, **kwargs)
             method_args["auth_handler"] = token
-            r = method_call.call_api(method=flickr_method, **method_args)
             try:
-                return format_result(r, token)
+                r = yield method_call.call_api(method=flickr_method, **method_args)
+            except Exception as e:
+                raise e
+            try:
+                raise Return(format_result(r, token))
             except TypeError:
-                return format_result(r)
+                raise Return(format_result(r))
         static_call.flickr_method = flickr_method
         static_call.isstatic = True
         return StaticCaller(static_call)

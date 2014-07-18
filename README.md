@@ -1,5 +1,5 @@
-Python Flickr API
------------------
+Python Async Flickr API
+-----------------------
 
 As complete as possible implementation of Flickr API.
 
