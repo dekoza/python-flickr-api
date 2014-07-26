@@ -1,30 +1,18 @@
+import flickr_api as f
 import sys
 
-from tornado.ioloop import IOLoop
-from tornado.gen import coroutine
-
-import flickr_api as f
-
-
-@coroutine
-def start():
-    try:
-        username = sys.argv[1]
-        try:
-            access_token = sys.argv[2]
-            f.set_auth_handler(access_token)
-        except IndexError:
-            pass
-
-        u = yield f.Person.findByUserName(username)
-        ps = yield u.getPhotosets()
-
-        for i, p in enumerate(ps):
-            print i, p.title
-    except IndexError:
-        print "usage: python show_albums.py username [access_token_file]"
-        print "Displays the list of photosets belonging to a user"
-
-
-if __name__ == "__main__":
-    IOLoop.instance().run_sync(start)
+try :
+    username = sys.argv[1]
+    try :
+        access_token = sys.argv[2]
+        f.set_auth_handler(access_token)
+    except IndexError : pass
+    
+    u = f.Person.findByUserName(username)
+    ps = u.getPhotosets()
+    
+    for i,p in enumerate(ps) :
+        print i,p.title
+except IndexError :
+    print "usage: python show_albums.py username [access_token_file]"
+    print "Displays the list of photosets belonging to a user"

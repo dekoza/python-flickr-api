@@ -43,20 +43,17 @@ def format_dict(d):
 def post(url, auth_handler, photo, **kwargs):
     kwargs = format_dict(kwargs)
     kwargs["api_key"] = auth_handler.key
-
     params = auth_handler.complete_parameters(url, kwargs).parameters
 
     fields = params.items()
-
     if isinstance(photo, str) or isinstance(photo, unicode):
         files = [("photo", os.path.basename(photo), open(photo).read())]
     else:
-        files = [("photo", '', photo.read())]
+        files = [("photo", '/dev/null', photo.read())]
 
     r, data = multipart.posturl(url, fields, files)
     if r.status != 200:
         raise FlickrError("HTTP Error %i: %s" % (r.status, data))
-    
     r = ET.fromstring(data)
     if r.get("stat") != 'ok':
         err = r[0]

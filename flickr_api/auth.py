@@ -145,7 +145,7 @@ class AuthHandler(object):
             access_token_resp["oauth_token_secret"]
         )
 
-    def complete_parameters(self, url, exclude_signature=None, params=None):
+    def complete_parameters(self, url, params=None, exclude_signature=None ):
         if exclude_signature is None:
             exclude_signature = []
         if params is None:
