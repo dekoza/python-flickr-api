@@ -145,7 +145,11 @@ class AuthHandler(object):
             access_token_resp["oauth_token_secret"]
         )
 
-    def complete_parameters(self, url, params={}, exclude_signature=[]):
+    def complete_parameters(self, url, exclude_signature=None, params=None):
+        if exclude_signature is None:
+            exclude_signature = []
+        if params is None:
+            params = {}
 
         defaults = {
             'oauth_timestamp': str(int(time.time())),

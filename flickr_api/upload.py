@@ -40,15 +40,18 @@ def format_dict(d):
     return d_
 
 
-def post(url, auth_handler, args, photo_file):
-    args = format_dict(args)
-    args["api_key"] = auth_handler.key
+def post(url, auth_handler, photo, **kwargs):
+    kwargs = format_dict(kwargs)
+    kwargs["api_key"] = auth_handler.key
 
-    params = auth_handler.complete_parameters(url, args).parameters
+    params = auth_handler.complete_parameters(url, kwargs).parameters
 
     fields = params.items()
 
-    files = [("photo", os.path.basename(photo_file), open(photo_file).read())]
+    if isinstance(photo, str) or isinstance(photo, unicode):
+        files = [("photo", os.path.basename(photo), open(photo).read())]
+    else:
+        files = [("photo", '', photo.read())]
 
     r, data = multipart.posturl(url, fields, files)
     if r.status != 200:
@@ -61,7 +64,7 @@ def post(url, auth_handler, args, photo_file):
     return r
 
 
-def upload(**args):
+def upload(photo, **kwargs):
     """
     Authentication:
 
@@ -89,11 +92,9 @@ def upload(**args):
             set to 1 for async mode, 0 for sync mode
 
     """
-    if "async" not in args:
-        args["async"] = False
+    # kwargs.setdefault('async', False)
 
-    photo_file = args.pop("photo_file")
-    r = post(UPLOAD_URL, auth.AUTH_HANDLER, args, photo_file)
+    r = post(UPLOAD_URL, auth.AUTH_HANDLER, photo, **kwargs)
 
     t = r[0]
     if t.tag == 'photoid':
@@ -107,7 +108,7 @@ def upload(**args):
         raise FlickrError("Unexpected tag: %s" % t.tag)
 
 
-def replace(**args):
+def replace(photo, **kwargs):
     """
      Authentication:
 
@@ -132,14 +133,12 @@ def replace(**args):
             for details.
 
     """
-    if "async" not in args:
-        args["async"] = True
-    if "photo" in args:
-        args["photo_id"] = args.pop("photo").id
+    # kwargs.setdefault('async', True)
 
-    photo_file = args.pop("photo_file")
+    if "photo" in kwargs:
+        kwargs["photo_id"] = kwargs.pop("photo").id
 
-    r = post(REPLACE_URL, auth.AUTH_HANDLER, args, photo_file)
+    r = post(REPLACE_URL, auth.AUTH_HANDLER, photo, **kwargs)
 
     t = r[0]
     if t.tag == 'photoid':
